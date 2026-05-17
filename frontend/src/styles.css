@@ -1,0 +1,10 @@
+@import './styles/base.css';
+@import './styles/shell.css';
+@import './styles/filters.css';
+@import './styles/workspace.css';
+@import './styles/papers.css';
+@import './styles/reports.css';
+@import './styles/details.css';
+@import './styles/graph.css';
+@import './styles/light-theme.css';
+@import './styles/responsive.css';

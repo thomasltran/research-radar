@@ -1,0 +1,147 @@
+.workspace {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 64px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.toolbar {
+  border-bottom: 1px solid #2a2d33;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 18px;
+  background: #121419;
+}
+
+.toolbar-left {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar-actions {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-actions .icon-button {
+  width: 36px;
+  min-width: 36px;
+  padding: 0;
+}
+
+.deselect-paper-button {
+  color: #aeb6c2;
+}
+
+.sort-control {
+  flex: 0 0 auto;
+  min-height: 38px;
+  border: 1px solid #333842;
+  border-radius: 6px;
+  background: #181b21;
+  color: #9ca3af;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.sort-control select {
+  border: 0;
+  background: transparent;
+  color: #f1ede6;
+  cursor: pointer;
+}
+
+.sort-control option {
+  background: #181b21;
+  color: #f1ede6;
+}
+
+.search {
+  min-width: 0;
+  max-width: 720px;
+  flex: 1;
+  height: 38px;
+  border: 1px solid #333842;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px 0 12px;
+  background: #181b21;
+  color: #9ca3af;
+}
+
+.toolbar-sort {
+  justify-content: space-between;
+  min-width: 168px;
+}
+
+.search input {
+  border: 0;
+  background: transparent;
+  color: #f1ede6;
+  width: 100%;
+  min-width: 0;
+}
+
+.search-result-count {
+  min-height: 28px;
+  border: 0;
+  background: transparent;
+  color: #8f98a6;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.metric {
+  color: #9ca3af;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.content-grid {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(420px, 1.35fr);
+  overflow: hidden;
+}
+
+.content-grid.detail-collapsed {
+  grid-template-columns: 1fr;
+}
+
+.content-grid.detail-collapsed .detail-pane {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.list-pane,
+.detail-pane {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.list-pane {
+  border-right: 1px solid #2a2d33;
+  background: #111318;
+  display: flex;
+  flex-direction: column;
+}

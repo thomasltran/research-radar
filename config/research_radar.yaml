@@ -1,0 +1,143 @@
+# Research Radar configuration
+#
+# Edit this file to tune the assistant for your research area. Keep secrets such
+# as API keys in .env, not here.
+
+research:
+  # Your research focus; injected into relevance, analysis, and pruning prompts.
+  description: |
+    I research distributed systems and operating system design for large-scale AI workloads,
+    with a strong emphasis on hardware-software co-design. My focus is on deeply understanding
+    GPU architecture and memory hierarchies to build more efficient kernel-bypass networking,
+    RPC frameworks, and distributed memory systems.
+
+  # Search/fetch topics. Use concrete phrases you would search for in papers.
+  topics:
+    - OS for AI / Systems for ML (MLSys)
+    - High-performance computing and parallel computing
+    - Kernel-bypass networking and RDMA
+    - Tensor parallelism and collective communications (NCCL)
+    - GPU microarchitecture and memory hierarchies (HBM, L2 cache)
+    - Hardware interconnects (PCIe Gen 5/6, NVLink, CXL)
+    - Hardware-software co-design for AI accelerators
+
+  # Allowed note/UI tags. Keep this short; the LLM must choose from this list.
+  tags:
+    - systems
+    - networking
+    - gpu-architecture
+    - memory-management
+    - distributed-training
+    - hardware-accelerator
+    - hpc
+    - benchmarking
+    - co-design
+    - performance-analysis
+
+  # Methods you care about; helps the scorer distinguish useful systems papers.
+  methods:
+    - Systems programming (C/C++, Rust)
+    - Kernel-level modification and module development (Linux)
+    - Performance profiling and bottleneck analysis (microbenchmarking, tracing)
+    - Hardware emulation and virtualization testing
+    - Distributed state management and consensus
+
+  # Hard negatives; papers matching these should be scored low.
+  exclusions:
+    - Pure theoretical ML proofs or algorithmic complexity bounds
+    - Designing novel neural network architectures (e.g., creating new Transformer variants)
+    - UI/UX research, human-computer interaction (HCI), or front-end systems
+    - Prompt engineering, AI alignment, or LLM behavioral studies
+    - Classic web-scale distributed systems that do not involve AI accelerators/GPUs
+
+  # Curated seed papers for first-time bootstrap and interest-vector cold start.
+  seed_papers:
+    - title: "LithOS: An Operating System for Efficient Machine Learning on GPUs"
+      # Why this seed belongs in your working set.
+      focus: "GPU microarchitecture, OS-level scheduling for Streaming Multiprocessors, and dynamic CUDA kernel slicing."
+    - title: "Efficient Memory Management for Large Language Model Serving with PagedAttention"
+      focus: "GPU memory fragmentation and applying classic OS virtual memory/paging abstractions to AI tensors."
+    - title: "Managing Memory Tiers with CXL in Virtualized Environments"
+      focus: "Hardware-software boundary for memory management, exploring hardware-managed tiering and the necessary software stack adaptations."
+    - title: "Pond: CXL-Based Memory Pooling Systems for Cloud Platforms"
+      focus: "Distributed memory tiering, NUMA architecture, and thread scheduling across high-speed CXL interconnects."
+    - title: "Birds of a Feather Flock Together: Scaling RDMA RPCs with Flock"
+      focus: "Low-latency RPC scaling, connection multiplexing, and preventing RDMA NIC cache thrashing in large clusters."
+    - title: "PRISM: Rethinking the RDMA Interface for Distributed Systems"
+      focus: "The hardware-software boundary of kernel-bypass networking, improving distributed system primitives directly within the RDMA network layer."
+    - title: "DistServe: Disaggregating Prefill and Decoding for Goodput-optimized LLM Serving"
+      focus: "Distributed AI serving architectures, cluster scheduling, and network optimization for shifting massive memory states between specialized nodes."
+
+pipeline:
+  default_fetch_source: both     # Default fetch source: both, arxiv, or semantic_scholar.
+  stage1_cosine_cutoff: 0.35     # Interest-vector similarity floor before LLM scoring.
+  stage2_relevance_cutoff: 6     # Minimum LLM score to compress/analyze.
+  working_set_entry_threshold: 7 # Minimum score to enter working set.
+  verification_trigger: 8        # Verify score >= this; Review/read papers are always verified.
+  ingest_retrieval_k: 6          # Related working-set papers supplied to ingest-time analysis.
+
+ingestion:
+  max_per_source: 50             # Max papers requested from each source per run.
+  source_request_delay_seconds: 1.5 # Delay between source API searches.
+
+bootstrap:
+  arxiv_title_match_threshold: 80 # Fuzzy title score needed for arXiv seed fallback.
+  seed_request_delay_seconds: 1.5 # Delay between seed lookups to avoid API throttling.
+
+search:
+  semantic_match_floor: 0.48              # Minimum FAISS similarity kept as a semantic candidate.
+  semantic_candidate_k: 80                # Candidate pool size before SQL/profile reranking.
+  semantic_max_results: 16                # Max results for multi-term semantic searches.
+  semantic_broad_query_max_results: 12    # Max results for one-word broad searches.
+  normalized_text_match_limit: 20         # Accent-insensitive exact rescue candidates.
+  # Query expansions that improve recall for common shorthand.
+  query_aliases:
+    gpu: [cuda, hbm, l2 cache, gpu-architecture, accelerator]
+    memory: [hbm, l2 cache, memory-management, cxl, cache]
+    rdma: [kernel-bypass, rpc, smartnic, nic, networking]
+    dataplane: [data plane, kernel-bypass, networking, smartnic]
+    pipeline: [pipelining, parallelism, distributed-training, collective]
+    pipelined: [pipeline, pipelining, parallelism, distributed-training, collective]
+    sharding: [tensor parallelism, model parallelism, distributed-training, collective communications]
+    collective: [nccl, all-reduce, allreduce, distributed-training]
+    collectives: [nccl, all-reduce, allreduce, distributed-training]
+    serving: [inference, llm serving, prefill, decoding]
+
+retrieval:
+  default_retrieval_k: 4 # Related papers retrieved for RAG/reanalysis context.
+  cluster_minimum: 40    # Use cluster-aware retrieval only at/above this working-set size.
+  max_per_cluster: 2     # Diversity cap when cluster-aware retrieval is active.
+
+pruning:
+  trigger_working_set_size: 75 # Start suggesting prune candidates once working set is this large.
+
+dedup:
+  fuzzy_title_threshold: 90 # Duplicate title fuzzy-match threshold.
+
+embeddings:
+  model_name: BAAI/bge-base-en-v1.5 # Sentence-transformer model used for FAISS/search.
+  dimension: 768                    # Embedding dimension; must match model output.
+  interest_alpha: 0.7                # Interest-vector EMA weight on previous vector.
+
+llm:
+  ollama_base_url: http://localhost:11434 # Default local Ollama endpoint.
+  default_model: qwen2.5:14b              # Default model for all JSON prompts.
+  max_retries: 3                          # Retries for transient Ollama failures.
+  retry_delay_seconds: 2                  # Base delay between retries.
+  wall_clock_grace_seconds: 15            # Extra hard-timeout margin beyond request timeout.
+  default_temperature: 0.1                # Low temperature keeps JSON/ranking stable.
+  default_timeout_seconds: 120            # Default Ollama request timeout.
+  relevance_timeout_seconds: 75           # Shorter timeout for high-volume scoring calls.
+
+maintenance:
+  max_consecutive_rescoring_failures: 5 # Stop relink if scoring repeatedly fails.
+
+prompts:
+  # Optional user guidance appended to stable prompt templates. Keep this as
+  # preference/rubric text; do not put JSON schema here.
+  relevance_guidance: ""     # Extra scoring rubric for relevance decisions.
+  compression_guidance: ""   # Extra preferences for generated summaries/tags.
+  analysis_guidance: ""      # Extra preferences for read/track/ignore analysis.
+  relationship_guidance: ""  # Extra preferences for paper-to-paper links.
+  verification_guidance: ""  # Extra checks for claim verification.
+  pruning_guidance: ""       # Extra rubric for pruning old working-set papers.
